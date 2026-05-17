@@ -198,16 +198,16 @@ def render_movie_grid(movies_df: pd.DataFrame, key_prefix: str, columns_per_row:
                 st.markdown(movie_card_markup(movie), unsafe_allow_html=True)
                 action_columns = st.columns(2)
                 with action_columns[0]:
-                    if st.button("Find Similar", key=f"{key_prefix}-similar-{movie_id}", use_container_width=True):
+                    if st.button("Find Similar", key=f"{key_prefix}-similar-{movie_id}", width="stretch"):
                         st.session_state.selected_movie_id = movie_id
                         st.rerun()
                 with action_columns[1]:
                     if movie_id in saved_ids:
-                        if st.button("Remove", key=f"{key_prefix}-remove-{movie_id}", use_container_width=True):
+                        if st.button("Remove", key=f"{key_prefix}-remove-{movie_id}", width="stretch"):
                             remove_from_watchlist(movie_id)
                             st.rerun()
                     else:
-                        if st.button("Save", key=f"{key_prefix}-save-{movie_id}", use_container_width=True):
+                        if st.button("Save", key=f"{key_prefix}-save-{movie_id}", width="stretch"):
                             add_to_watchlist(movie)
                             st.rerun()
 
@@ -217,14 +217,16 @@ inject_styles()
 current_year = datetime.now().year
 year_limits = (1950, current_year)
 
-st.image(str(BANNER_PATH), use_container_width=True)
+st.image(str(BANNER_PATH), width="stretch")
 st.markdown(
     """
     <div class="hero">
       <div class="hero-kicker">Movie Discovery Studio</div>
       <div class="hero-title">Tent Kottagai</div>
       <p class="hero-copy">
-        explore the genre you want, find movies similar to your favourites, and build a watchlist for later. 
+        Explore the genre you want, find movies similar to your favourites, and build a watchlist for later.
+      </p>
+    </div>
     """,
     unsafe_allow_html=True,
 )
@@ -242,7 +244,7 @@ genre_name_to_id = {name: genre_id for genre_id, name in genre_map.items()}
 query = st.text_input("Search by movie title or keyword", placeholder="Try: dystopian sci-fi, space, batman...")
 
 with st.sidebar:
-    st.image(str(LOGO_PATH), use_container_width=True)
+    st.image(str(LOGO_PATH), width="stretch")
     st.header("Filters")
     selected_genres = st.multiselect("Genre", options=all_genres)
     rating_range = st.slider("Rating", min_value=1.0, max_value=10.0, value=(1.0, 10.0), step=0.1)

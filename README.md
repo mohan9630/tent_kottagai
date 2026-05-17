@@ -53,6 +53,16 @@ cd movie_app
 streamlit run app.py
 ```
 
+## Streamlit Community Cloud
+
+If you deploy this app to Streamlit Community Cloud, `.env` is not uploaded from GitHub. Add your TMDB key in the app's Secrets settings as:
+
+```toml
+TMDB_API_KEY = "your_tmdb_api_key_here"
+```
+
+The app now reads the key from `st.secrets["TMDB_API_KEY"]` when deployed and falls back to `movie_app/.env` for local development.
+
 ## How To Get A TMDB API Key
 
 1. Go to [TMDB](https://www.themoviedb.org/signup) and create an account.

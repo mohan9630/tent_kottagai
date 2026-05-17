@@ -9,7 +9,10 @@ from urllib.request import Request, urlopen
 from typing import Any
 
 import requests
+import streamlit as st
 from dotenv import load_dotenv
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
@@ -23,10 +26,11 @@ class TMDBClient:
     def __init__(self, api_key: str | None = None, language: str = "en-US") -> None:
         env_path = Path(__file__).resolve().parent / ".env"
         load_dotenv(dotenv_path=env_path)
-        self.api_key = api_key or os.getenv("TMDB_API_KEY")
+        self.api_key = api_key or self._load_api_key()
         if not self.api_key:
             raise TMDBApiError(
-                "TMDB API key not found. Add TMDB_API_KEY to movie_app/.env before running the app."
+                "TMDB API key not found. Add TMDB_API_KEY to movie_app/.env for local runs, "
+                "or set TMDB_API_KEY in your Streamlit app Secrets when deployed."
             )
 
         self.language = language
@@ -41,6 +45,27 @@ class TMDBClient:
                 "User-Agent": "CineScope/1.0",
             }
         )
+        retries = Retry(
+            total=2,
+            connect=2,
+            read=2,
+            backoff_factor=0.6,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=("GET",),
+        )
+        adapter = HTTPAdapter(max_retries=retries)
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
+
+    def _load_api_key(self) -> str | None:
+        try:
+            if "TMDB_API_KEY" in st.secrets:
+                return str(st.secrets["TMDB_API_KEY"]).strip()
+        except Exception:
+            pass
+
+        value = os.getenv("TMDB_API_KEY", "").strip()
+        return value or None
 
     def _error_message(self, payload: dict[str, Any] | None, fallback: str) -> str:
         if not payload:
